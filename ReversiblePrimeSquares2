@@ -1,0 +1,151 @@
+.data
+
+	displaytext: .asciiz "REVERSIBLE PRIME SQUARES: \n"
+
+.text
+main:
+
+	li $v0,4
+	la $a3, displaytext
+	
+	li $v0,10
+	syscall
+	 
+	jal ReversiblePrimeSquares
+	li $v0,10
+	syscall
+	
+ReversiblePrimeSquares:
+	li $s4,2
+	li $s1,1 	#num
+	li $s0,0	#count
+	li $t1,1	#test
+	
+	jal PrimeNumber
+	move $t0,$v1	#move argument to $t0
+	bne  $t0,$t1, Exit
+	mul $s2,$s1,$s1	#squre num and store in $s2(square)
+	
+	jal ReversiblePrimeSquares
+	move $a1,$s2	#move the square to $a1
+	move $s3,$a1	# now move it to reversed
+	beq $s2,$s3,Exit	# if square = reversed, go to  exit
+	
+	For:
+		div $s3,$s4
+		mflo $t0
+		bgt $s5,$t2, Exit
+		mul $t3,$s5,$s5
+		
+		bne $t3,$s3,Exit
+		
+	li $v0,10
+	syscall
+		
+	jal PrimeNumber
+	move $a0,$s5	#i
+	bne $a1,$t1,Exit	#if
+	li $v0,1
+	move $a0,$s2
+	
+	#addi $s0,$s0,1
+	
+	li $v0,10
+	syscall
+	
+	bge $s0,10,terminate
+	
+	terminate:
+		addi $s0,$s0,1
+		
+		j For
+	jr $ra
+	
+	PrimeNumber:
+	#li      $a1,12
+	li	$t3, 2
+
+	for:
+		blt	$a1, $t3, false
+	
+		bge	$t3, $a1, true
+	
+		div	$a1, $t3
+		mfhi	$t2
+	
+		beqz	$t2, false
+		addi	$t3, $t3, 1
+		j	for
+	jr	$ra
+
+	true:
+		li	$v1, 1
+		li $v0,1
+		move $a0,$v1
+		syscall
+		
+		jr	$ra
+		
+		
+	false:
+		li $v1, 0
+		li $v0,1
+		move $a0,$v1
+		syscall
+		
+		jr	$ra
+	
+
+	jal reverse
+		li $v0,10
+		syscall
+	reverse:
+		#li $s0,49
+        	li $t0,0
+		li $t1,10
+		
+        	while:
+             	beqz $s0,exit		#if num is ==0 go to exit
+             	
+             	div $s0,$t1 
+             	mfhi $t2		#n%10
+             
+            	mul $t0,$t0,$t1		#n=n/10
+             	add $t0,$t0,$t2		
+             
+             	div $s0,$t1
+             	mflo $s0
+             
+             	j while
+             	
+             li $v0,10
+             syscall
+             	
+         
+	exit:
+		
+		li $v0,1
+		move $a0,$t0
+		syscall
+		
+		move $v0,$t0
+		
+		
+		#li $v0,10
+		#syscall
+		
+		jr $ra
+		
+		li $v0,10
+		syscall
+		
+	
+
+	Exit:
+		li $v0,1
+		syscall
+		
+	jr $ra
+	
+		li $v0,10
+		syscall
